@@ -4,9 +4,9 @@ author: "Abel Luis Muñoz Vera"
 date: "`9 de diciembre del 2022`"
 lang: es
 output:
-  pdf_document: default
-  html_document: default
   word_document: default
+  html_document: default
+  pdf_document: default
 editor_options: 
   markdown: 
     wrap: 72
@@ -71,13 +71,11 @@ en línea. Los subindices correspondientes a **investigacion_2**,
   cuestionarios <- read_excel("Base.xlsx", sheet = 1)  
   medidas_seguridad <- read_excel("Base.xlsx", sheet = 2) 
   procesos <- read_excel("Base.xlsx", sheet = 3)
-  tramites <- read_excel("Base.xlsx", sheet = 4) 
+  tramites <- read_excel("Base.xlsx", sheet = 4)
+  IMTM_2015 <- read_excel("Base.xlsx", sheet = 5)
 ```
 
-# Objetivo general Creación Indice IMTM 2022
-
-El objetivo planteado fue *Analizar el nivel de madurez digital en los
-municipios de la región de Concepción al año 2022*
+# Creación Indice IMTM 2022
 
 ## Construcción Dataframe
 
@@ -106,7 +104,7 @@ municipios de la región de Concepción al año 2022*
 
 # Conversión a valores numericos 
   cuestionarios <- cuestionarios %>% 
-  mutate_at(c('IMTM_2015', 'seg_info', 'num_serv', 'area_info', 'educ_info', 
+  mutate_at(c('seg_info', 'num_serv', 'area_info', 'educ_info', 
               'org_info', 'org_info_dep', 'procesos', 'tramites'), as.numeric)
 
 # Creación de las dimensiones 
@@ -125,6 +123,7 @@ municipios de la región de Concepción al año 2022*
 ```{r }
 # Creación Dataframe IMTM 2022
   IMTM_2022 <- select(cuestionarios, Provincia, Municipio, FIGEM, IMTM_2022)
+  IMTM_2022 <- na.exclude(IMTM_2022)
 # Creación Tabla
   kable(IMTM_2022, digits= 2, caption = "IMTM Region del Biobío", align = 'c', 
         col.names = c("Provincia", "Municipalidades", "Tipología", "IMTM"))
@@ -132,7 +131,114 @@ municipios de la región de Concepción al año 2022*
 
 \newpage
 
-# Objetivo 1:
+# Objetivo general
+
+El objetivo planteado fue *Analizar el nivel de madurez digital en los
+municipios de la región de Concepción al año 2022
+
+```{r}
+# Resultados como ranking 
+IMTM_2022_rank <- IMTM_2022 %>% arrange(desc(IMTM_2022)) %>% 
+  na.omit(IMTM_2022_rank) # Quitar valores N.A
+Ranking <- c(1:30)
+IMTM_2022_rank <- cbind(Ranking, IMTM_2022_rank)
+
+```
+
+```{r}
+  kable(IMTM_2022_rank, digits= 2, caption = "IMTM Region del Biobío", align = 
+  'c', col.names = c("Ranking", "Provincia", "Municipalidades", "Tipología", "IMTM"))
+```
+# Objetivo 1: 
+
+Para *Contrastar el IMTM 2015 y el IMTM 2022* se realizará una tabla de datos 
+que incluya la diferencia entre ambas variables. También estadística descriptiva 
+y gráficos de caja.  
+
+```{r}
+# Estadística descriptiva IMTM 2015
+
+# Crear vector characters con nombres estadísticos  
+  nombres <- c("Mínimo", "Cuartil 1", "Media", "Mediana", "Varianza", 
+             "Desviación Estándar", "Cuartil 3", "Máximo", "Rango", 
+             "Rango intercuartil", "Simetría", "Curtosis")
+
+  IMTM_2015 <- IMTM_2015 %>% mutate_at(c('IMTM_2015'), as.numeric)
+  
+  min <- min(IMTM_2015$IMTM_2015, na.rm = TRUE)
+  q1 <- quantile(IMTM_2015$IMTM_2015, probs = 0.25, na.rm = TRUE)
+  media <- mean.default(IMTM_2015$IMTM_2015, na.rm = TRUE)
+  mediana <- median.default(IMTM_2015$IMTM_2015, na.rm = TRUE)
+  var <- var(IMTM_2015$IMTM_2015, na.rm = TRUE)
+  desvest <- sd(IMTM_2015$IMTM_2015, na.rm = TRUE)
+  q3 <- quantile(IMTM_2015$IMTM_2015, probs = 0.75, na.rm = TRUE)
+  max <- max(IMTM_2015$IMTM_2015, na.rm = TRUE)
+  rango <- (max - min)
+  rango_iq <- (q3 - q1)
+  s <- skew(IMTM_2015$IMTM_2015) /sqrt(6/1401) 
+  c <- kurtosi(IMTM_2015$IMTM_2015) /sqrt(6/1401)
+  
+  Descriptivos_IMTM_2015 <- as.numeric(c(min, q1, media, mediana, var, desvest, 
+                                         q3, max, rango, rango_iq, s, c))
+```
+
+```{r}
+# Indice IMTM 2022
+  min <- min(IMTM_2022$IMTM_2022, na.rm = TRUE)
+  q1 <- quantile(IMTM_2022$IMTM_2022, probs = 0.25, na.rm = TRUE)
+  media <- mean.default(IMTM_2022$IMTM_2022, na.rm = TRUE)
+  mediana <- median.default(IMTM_2022$IMTM_2022, na.rm = TRUE)
+  var <- var(IMTM_2022$IMTM_2022, na.rm = TRUE)
+  desvest <- sd(IMTM_2022$IMTM_2022, na.rm = TRUE)
+  q3 <- quantile(IMTM_2022$IMTM_2022, probs = 0.75, na.rm = TRUE)
+  max <- max(IMTM_2022$IMTM_2022, na.rm = TRUE)
+  rango <- (max - min)
+  rango_iq <- (q3 - q1)
+  s <- skew(IMTM_2022$IMTM_2022) /sqrt(6/1401) 
+  c <- kurtosi(IMTM_2022$IMTM_2022) /sqrt(6/1401)
+  
+  Descriptivos_IMTM <- as.numeric(c(min, q1, media, mediana, var, desvest, q3, 
+                                    max, rango, rango_iq, s, c))
+```
+
+```{r}
+descriptivos <- data.frame(nombres, Descriptivos_IMTM_2015, Descriptivos_IMTM)
+  
+  descriptivos <- select(descriptivos, nombres, Descriptivos_IMTM_2015, 
+                        Descriptivos_IMTM)
+  descriptivos <- mutate(descriptivos, Diferencia = (Descriptivos_IMTM -
+                        Descriptivos_IMTM_2015))
+  
+  kable(descriptivos, digits = 3, align = 'c', 
+      caption = "Diferencia estadística descriptiva IMTM 2015 y 2022", 
+      col.names = c("Nombre", "IMTM 2015", "IMTM 2022", "Diferencia"))
+```
+
+\newpage
+```{r}
+  contrastar <- select(cuestionarios, Provincia, Municipio, IMTM_2022)
+  contrastar$IMTM_2015 <- IMTM_2015$IMTM_2015
+  contrastar <- mutate(contrastar, Diferencia = (IMTM_2022-IMTM_2015))
+
+  kable(contrastar, digits = 2, align = 'c', 
+      caption = "Diferencia IMTM 2015 y 2022", 
+      col.names = c("Provincia", "Municipio", "IMTM 2022", "IMTM 2015", 
+                    "Diferencia"))
+```
+
+```{r warning=FALSE}
+## Boxplot IMTM 2015 y 2022
+#  Apilar valores IMTM como factor 
+  contrastar <- cbind(contrastar[1:2:5], stack(contrastar[3:4]))
+  contrastar <- rename(contrastar, Valores = values, Índice = ind)
+
+  qplot(data = contrastar, x = Índice, y = Valores, fill = Índice, 
+  geom = "boxplot", main = "Gráfico de caja IMTM 2015 y 2022") +
+  scale_fill_discrete(guide = "none") + scale_fill_brewer(palette = "Dark2")
+```
+
+
+# Objetivo 2:
 
 Para *Caracterizar la madurez digital de los municipios de la región de
 Concepción al año 2022 según el Índice de madurez tecnológica Municipal*
@@ -140,6 +246,12 @@ se construirán dataframes para luego realizar tablas con los valores
 obtenidos en cada dimensión, correlaciones entre dimensión e índice, 
 estadística descriptiva y por último gráficos de caja que permitan apreciar 
 la distribución de estos valores.
+
+```{r}
+# Quitar valores NA base de datos cuestionarios 
+cuestionarios <- na.omit(cuestionarios)
+```
+
 
 ```{r}
 # Dataframe IT 
@@ -180,10 +292,6 @@ la distribución de estos valores.
 
 ```{r}
 # Dimensión IT
-# Crear vector characters con nombres estadísticos  
-  nombres <- c("Mínimo", "Cuartil 1", "Media", "Mediana", "Varianza", 
-             "Desviación Estándar", "Cuartil 3", "Máximo", "Rango", 
-             "Rango intercuartil", "Simetría", "Curtosis")
 # Crear elementos estadísticos 
   min <- min(IT$IT, na.rm = TRUE)
   q1 <- quantile(IT$IT, probs = 0.25, na.rm = TRUE)
@@ -293,7 +401,9 @@ kable(descriptivos, digits = 2, align = 'c', caption =
 ## Correlación entre dimensiones e indice 
 
 ```{r}
-correlacion <- na.omit(cuestionarios)
+correlacion <- select(cuestionarios, Provincia, Municipio, FIGEM, IT, RRHH,
+                      GTM, SML, IMTM_2022)
+correlacion <- na.omit(correlacion)
 
 cor_IT <- cor(correlacion$IT, correlacion$IMTM_2022, 
     use = "everything", method=c("pearson", "kendall", "spearman"))
@@ -321,39 +431,120 @@ kable(correlacion_IMTM, digits = 3, align = 'c', caption =
 ## Gráficos de caja
 
 ```{r warning=FALSE}
-diferencia_dim <- cbind(cuestionarios[1:3], stack(cuestionarios[17:20]))
+diferencia_dim <- cbind(cuestionarios[1:3], stack(cuestionarios[18:21]))
 diferencia_dim <- rename(diferencia_dim, Valores = values, Dimensiones = ind)
 qplot(data = diferencia_dim, y = Dimensiones, x = Valores, fill = Dimensiones, 
       geom = "boxplot", main = "Gráfico de caja Dimensiones IMTM 2022") + 
-  scale_fill_discrete(guide = "none")
+  scale_fill_discrete(guide = "none") + scale_fill_brewer(palette = "Dark2")
 ```
-
-# Objetivo 2: 
+# Objetivo 3: 
 
 Para *Comparar la madurez digital entre los municipios de la región de
 Concepción al año 2022* se realizará un gráfico de puntos Cleveland, ademas de
 presentar los resultados de las variables. 
 
-## Gráfico Cleveland de puntos agrupado por Provincia
+## Gráfico Cleveland de puntos IMTM agrupado por Provincia
 
 ```{r warning=FALSE}
+## Gráfico Cleveland de puntos IMTM agrupado por Provincia
+
+cleveland <- select(cuestionarios, Provincia, Municipio, FIGEM, IMTM_2022,
+                    IT, RRHH, GTM, SML)
 # Poner los nombres, ordenarlos primero por provincia y luego por IMTM
-nameorder <- IMTM_2022$Municipio[order(IMTM_2022$Provincia,
-                                       IMTM_2022$IMTM_2022)]
+  nameorder <- cleveland$Municipio[order(cleveland$Provincia,
+                                       cleveland$IMTM_2022)]
 
 # Convertir nombres en factor, con niveles en el orden de nameorder  
-IMTM_2022$Municipio <- factor(IMTM_2022$Municipio, levels = nameorder)
+  cleveland$Municipio <- factor(cleveland$Municipio, levels = nameorder)
 
-ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
+  ggplot(cleveland, aes(x = IMTM_2022, y = Municipio)) +
   geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
   geom_point(size = 2, aes(colour = Provincia)) + 
-  labs(title = "IMTM municipios de la región del Biobío por provincia",
-                y = "Municipios", x = "Valores" ) + 
+  labs(title = "IMTM región del Biobío por provincia",
+       y = "Municipios", x = "Valores" ) + 
   scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
                                                    "Arauco")) +
   theme_bw() + theme(panel.grid.major.y = element_blank(),
-    legend.position = c(1, 0.55), legend.justification = c(1, 0.5))
+        legend.position = c(0.90, 0.15), legend.justification = c(0.90, 0.15))
 ```
+
+## Gráfico cleveland IT provincia
+
+```{r}
+nameorder <- cleveland$Municipio[order(cleveland$Provincia,
+                                       cleveland$IT)]
+
+cleveland$Municipio <- factor(cleveland$Municipio, levels = nameorder)
+
+ggplot(cleveland, aes(x = IT, y = Municipio)) +
+  geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
+  geom_point(size = 2, aes(colour = Provincia)) + 
+  labs(title = "IT región del Biobío por provincia",
+       y = "Municipios", x = "Valores" ) + 
+  scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
+                                                   "Arauco")) +
+  theme_bw() + theme(panel.grid.major.y = element_blank(),
+                     legend.position = c(0.90, 0.15), legend.justification = c(0.90, 0.15))
+```
+
+## Gráfico cleveland RRHH provincia
+
+```{r}
+  nameorder <- cleveland$Municipio[order(cleveland$Provincia,
+                                       cleveland$RRHH)]
+
+  cleveland$Municipio <- factor(cleveland$Municipio, levels = nameorder)
+
+  ggplot(cleveland, aes(x = RRHH, y = Municipio)) +
+  geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
+  geom_point(size = 2, aes(colour = Provincia)) + 
+  labs(title = "RRHH región del Biobío por provincia",
+       y = "Municipios", x = "Valores" ) + 
+  scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
+                                                   "Arauco")) +
+  theme_bw() + theme(panel.grid.major.y = element_blank(),
+        legend.position = c(0.98, 0.28), legend.justification = c(0.98, 0.28))
+```
+
+## Gráfico cleveland GTM
+
+```{r}
+  nameorder <- cleveland$Municipio[order(cleveland$Provincia,
+                                       cleveland$GTM)]
+
+  cleveland$Municipio <- factor(cleveland$Municipio, levels = nameorder)
+
+  ggplot(cleveland, aes(x = GTM, y = Municipio)) +
+  geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
+  geom_point(size = 2, aes(colour = Provincia)) + 
+  labs(title = "GTM región del Biobío por provincia",
+       y = "Municipios", x = "Valores" ) + 
+  scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
+                                                   "Arauco")) +
+  theme_bw() + theme(panel.grid.major.y = element_blank(),
+        legend.position = c(0.90, 0.15), legend.justification = c(0.90, 0.15))
+```
+
+## Gráfico cleveland SML 
+
+```{r}
+  nameorder <- cleveland$Municipio[order(cleveland$Provincia,
+                                       cleveland$SML)]
+
+  cleveland$Municipio <- factor(cleveland$Municipio, levels = nameorder)
+
+  ggplot(cleveland, aes(x = SML, y = Municipio)) +
+  geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
+  geom_point(size = 2, aes(colour = Provincia)) + 
+  labs(title = "SML región del Biobío por provincia",
+       y = "Municipios", x = "Valores" ) + 
+  scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
+                                                   "Arauco")) +
+  theme_bw() + theme(panel.grid.major.y = element_blank(),
+        legend.position = c(0.90, 0.15), legend.justification = c(0.90, 0.15))
+```
+
+
 ## Resultados IT
 ```{r}
 # seg_info datos
@@ -364,7 +555,7 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
   lista_seg_info <- c(1:4)
   lista_seg_info <- factor(lista_seg_info)
   Total_seg_info <- data.frame(lista_seg_info, nombre_seg_info, Total_seg_info)
-  Total_seg_info <- mutate(Total_seg_info, no_seg_info = (33-Total_seg_info))
+  Total_seg_info <- mutate(Total_seg_info, no_seg_info = (30-Total_seg_info))
   row.names(Total_seg_info) <- NULL 
 
   kable(Total_seg_info, caption = "Total de medidas de seguridad", align= 'c', 
@@ -376,17 +567,17 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
   ggplot(Total_seg_info, aes(x = lista_seg_info, y = Total_seg_info)) +
   geom_col(aes(fill = nombre_seg_info), colour = "black", position = "dodge", 
            width = 0.5) +
-  scale_x_discrete("Medidas de seguridad") + scale_y_continuous("Cantidad") + 
-  labs(title = "Medidas de seguridad en el municipio", 
-  subtitle = "Frecuencia de los valores del subindice medidas_seguridad") +
+  scale_x_discrete("") + scale_y_continuous("Cantidad") + 
+  labs(title = "Nivel de seguridad informática") +
   scale_fill_discrete(name = "Medidas de seguridad") + 
-  geom_text(aes(label = Total_seg_info), vjust = -0.3)
+  geom_text(aes(label = Total_seg_info), vjust = -0.3) + 
+  scale_fill_brewer(palette = "Dark2") + 
+  guides(fill=guide_legend(title="Medidas de seguridad"))
 ```
  
 ```{r}
 # num_serv datos 
-  cant_serv <- c("Ninguno", "Uno", "Dos", "Tres", "Cuatro", "Seis", 
-                 "Diez", "NA")
+  cant_serv <- c("Ninguno", "Uno", "Dos", "Tres", "Cuatro", "Seis", "Diez", "NA")
   total_serv <- medidas_seguridad %>% count(cant_serv) 
   total_serv <- total_serv$n # Elim
   Total_num_serv <- data.frame(cant_serv, total_serv) 
@@ -405,24 +596,22 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
   ggplot(Total_num_serv, aes(x = fct_reorder(cant_serv, total_serv), y = total_serv)) +
   geom_col(aes(fill = cant_serv), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("Servidores") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Cantidad de servidores", 
-        subtitle = "Frecuencia de la variable num_serv") + 
-        scale_fill_discrete(guide = "none") + 
-        geom_text(aes(label = total_serv), vjust = -0.3)
+  labs(title = "Número de servidores disponibles") + 
+  geom_text(aes(label = total_serv), vjust = -0.3) + scale_fill_brewer(palette = "Dark2")   + guides(fill = FALSE) 
 ```
 
 ## Resultados RRHH
 
 ```{r warning=FALSE}
 # area_info datos
-  si_no <- c("No", "Si", "NA")
+  si_no <- c("No", "Si")
   total_area_info <- RRHH %>% count(area_info) 
   total_area_info <- total_area_info$n 
   Total_area_info <- data.frame(si_no, total_area_info) 
   row.names(Total_area_info) <- NULL
   
   kable(Total_area_info, caption = "Presencia de área informática municipal", 
-        align= 'c', col.names = c("Presencia", "Total"))
+        align= 'c', col.names = c("Presencia", "Total"))  
 ```
 
 ```{r}
@@ -430,17 +619,17 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
   ggplot(Total_area_info, aes(x = si_no, y = total_area_info)) +
   geom_col(aes(fill = si_no), colour = "black", position = "dodge", width = 0.5) + 
   scale_x_discrete("Presencia") + scale_y_continuous("Cantidad") + 
-  labs(title = "Presencia de área informática municipal", 
-  subtitle = "Frecuencia de la variable area_info") + 
+  labs(title = "Presencia de un área de informática") + 
   scale_fill_discrete(guide = "none") + 
-  geom_text(aes(label = total_area_info), vjust = -0.3)
+  geom_text(aes(label = total_area_info), vjust = -0.3) + 
+  scale_fill_brewer(palette = "Dark2") + guides(fill = FALSE) 
 ```
 
 ```{r}
 # educ_info datos 
-  nivel_educ <- c("Educación técnica", 
-                "Educación superior", "NA")
-  total_educ_info <- RRHH %>% count(educ_info)
+  nivel_educ <- c("Tecnica nivel superior", "Superior pregrado", 
+                  "Superior postgrado")
+  total_educ_info <- cuestionarios %>% count(educ_info_lvl)
   total_educ_info <- total_educ_info$n
   Total_educ_info <- data.frame(nivel_educ, total_educ_info)
   row.names(Total_educ_info) <- NULL
@@ -454,16 +643,16 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
   ggplot(Total_educ_info, aes(x = nivel_educ, y = total_educ_info)) +
   geom_col(aes(fill = nivel_educ), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("Nivel") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Nivel educacional encargado informática", 
-        subtitle = "Frecuencia de la variable educ_info") + 
+        labs(title = "Nivel educacional encargado informática") + 
         scale_fill_discrete(guide = "none") + 
-        geom_text(aes(label = total_educ_info), vjust = -0.3)
+        geom_text(aes(label = total_educ_info), vjust = -0.3) +
+  scale_fill_brewer(palette = "Dark2") + guides(fill = FALSE) 
 ```
 
 ```{r}
 # org_info datos
-  org_info_c <- c("Alcalde", "Admin Municipal", 
-                  "DAF", "SECPLAN", "Otro", "NA") 
+  org_info_c <- c("Alcalde", "Adm. Municipal", "DAF", "SECPLAN", 
+                  "Secr. Municipal", "Otro") 
   total_org_info <- cuestionarios %>% count(org_info_dep)
   total_org_info <- total_org_info$n
   Total_org_info <- data.frame(org_info_c, total_org_info)
@@ -477,11 +666,12 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
  ggplot(Total_org_info, aes(x = fct_reorder(org_info_c, total_org_info), 
                                             y = total_org_info)) +
   geom_col(aes(fill = org_info_c), colour = "black", position = "dodge", 
-  width = 0.5) + scale_x_discrete("Dependencia") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Dependencia de la unidad de informática", 
-        subtitle = "Frecuencia de la variable org_info") + 
+  width = 0.5) + scale_x_discrete("") + scale_y_continuous("Frecuencia") + 
+        labs(title = "Dependencia de la unidad de informática") + 
         scale_fill_discrete(guide = "none") + 
-        geom_text(aes(label = total_org_info), vjust = -0.3)
+        geom_text(aes(label = total_org_info), vjust = -0.3) + 
+  scale_fill_brewer(palette = "Dark2") + 
+  guides(fill=guide_legend(title="Dependencia"))
 ```
 
 ```{r}
@@ -502,10 +692,10 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
   ggplot(Total_intranet, aes(x = si_no, y = total_intranet)) +
   geom_col(aes(fill = si_no), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("Presencia") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Presencia de intranet municipal", 
-        subtitle = "Frecuencia de la variable intranet") + 
+        labs(title = "Presencia de intranet Municipal") + 
         scale_fill_discrete(guide = "none") + 
-        geom_text(aes(label = total_intranet), vjust = -0.3)
+        geom_text(aes(label = total_intranet), vjust = -0.3) +
+        scale_fill_brewer(palette = "Dark2") + guides(fill = FALSE)  
 ```
 
 ```{r warning=FALSE}
@@ -524,10 +714,10 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
   ggplot(Total_estrategia_s, aes(x = si_no, y = total_estrategia_s)) +
   geom_col(aes(fill = si_no), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("Presencia") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Presencia de estrategia servicios municipales", 
-        subtitle = "Frecuencia de la variable estrategia_servicios") + 
+        labs(title = "Presencia de estrategia servicios municipales") + 
         scale_fill_discrete(guide = "none") + 
-        geom_text(aes(label = total_estrategia_s), vjust = -0.3)
+        geom_text(aes(label = total_estrategia_s), vjust = -0.3) +
+  scale_fill_brewer(palette = "Dark2") + guides(fill = FALSE)
 ```
 
 ```{r}
@@ -546,10 +736,9 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
   ggplot(Total_estrategia_g, aes(x = si_no, y = total_estrategia_g)) +
   geom_col(aes(fill = si_no), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("Presencia") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Presencia de estrategia de gestión municipal", 
-        subtitle = "Frecuencia de la variable estrategia_gestion") + 
+        labs(title = "Presencia de estrategia de gestión municipal") + 
         scale_fill_discrete(guide = "none") + 
-        geom_text(aes(label = total_estrategia_g), vjust = -0.3)
+        geom_text(aes(label = total_estrategia_g), vjust = -0.3) +  scale_fill_brewer(palette = "Dark2") + guides(fill = FALSE)
 ```
 
 ```{r warning=FALSE}
@@ -569,7 +758,6 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
   "Administración de consultorios / farmacias", "Ventanilla única") #2do paso 
 
   lista_proceso <- c(1:18)
-
   Total_procesos <- data.frame(lista_proceso, nombre_proceso, 
                                Total_proceso) # 3er crear DF
 
@@ -583,16 +771,12 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
 # cleveland procesos
   ggplot(Total_procesos, aes(x = Total_proceso, 
                            y = reorder(nombre_proceso, Total_proceso))) +
-  geom_point(size = 2) + labs(title = "Cantidad de procesos", 
-                subtitle = "Frecuencia del subindice procesos", 
-                y = "Nombre procesos", x = "Total de procesos municipales" ) +
+  geom_point(size = 2) + labs(title = "Cantidad de procesos informatizados", 
+                y = "Nombre procesos", x = "Total procesos municipales" ) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
         panel.grid.major.y = element_line(colour = "gold", linetype = "dashed"))
-
 ```
-
-
 ## Resultados SML
 
 ```{r}
@@ -605,9 +789,9 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
   "Permiso de demolición", "Obtención de Permiso de edificación", 
   "Renovación de Permiso de edificación", "Pago de Permiso de edificación",
   "Permiso de uso de bienes nacionales de uso público", 
-  "Informe de zonificación",
-  "Recepción de obra", "Certificado de informaciones previas", 
-  "Permiso de circulación", "Pago de multas en Juzgado de policía local", 
+  "Informe de zonificación", "Recepción de obra", 
+  "Certificado de informaciones previas", "Permiso de circulación", 
+  "Pago de multas en Juzgado de policía local", 
   "Solicitud de corte y poda de árboles", "Solicitud de cambio de domicilio",
   "Obtención de Patente comercial", "Otro")
 
@@ -622,71 +806,12 @@ ggplot(IMTM_2022, aes(x = IMTM_2022, y = Municipio)) +
 ```{r}
 ggplot(Total_tramites, aes(x = Total_tramite, 
                            y = reorder(nombre_tramite, Total_tramite))) +
-  geom_point(size = 2) + labs(title = "Cantidad de trámites informatizados", 
-                subtitle = "Frecuencia del subindice tramites", 
+  geom_point(size = 1) + labs(title = "Cantidad de trámites informatizados",  
                 y = "Nombre trámite", x = "Total de trámites municipales" ) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
-        panel.grid.major.y = element_line(colour = "gold", linetype = "dashed"))
+        panel.grid.major.y = element_line(colour = "coral", linetype = "dashed"))
 
-```
-
-
-# Objetivo 3:
-
-Para *Contrastar el IMTM 2015 y el IMTM 2022* se realizará una tabla de datos 
-que incluya la diferencia entre ambas variables. También estadística descriptiva 
-y gráficos de caja.  
-
-
-```{r}
-# Estadística descriptiva IMTM 2015
-  min <- min(cuestionarios$IMTM_2015, na.rm = TRUE)
-  q1 <- quantile(cuestionarios$IMTM_2015, probs = 0.25, na.rm = TRUE)
-  media <- mean.default(cuestionarios$IMTM_2015, na.rm = TRUE)
-  mediana <- median.default(cuestionarios$IMTM_2015, na.rm = TRUE)
-  var <- var(cuestionarios$IMTM_2015, na.rm = TRUE)
-  desvest <- sd(cuestionarios$IMTM_2015, na.rm = TRUE)
-  q3 <- quantile(cuestionarios$IMTM_2015, probs = 0.75, na.rm = TRUE)
-  max <- max(cuestionarios$IMTM_2015, na.rm = TRUE)
-  rango <- (max - min)
-  rango_iq <- (q3 - q1)
-  s <- skew(cuestionarios$IMTM_2015) /sqrt(6/1401) 
-  c <- kurtosi(cuestionarios$IMTM_2015) /sqrt(6/1401)
-  
-  Descriptivos_IMTM_2015 <- as.numeric(c(min, q1, media, mediana, var, desvest, 
-                                         q3, max, rango, rango_iq, s, c))
-  descriptivos <- data.frame(nombres, Descriptivos_IMTM_2015, Descriptivos_IMTM)
-  
-  descriptivos <- select(descriptivos, nombres, Descriptivos_IMTM_2015, 
-                        Descriptivos_IMTM)
-  descriptivos <- mutate(descriptivos, Diferencia = (Descriptivos_IMTM -
-                        Descriptivos_IMTM_2015))
-  
-  kable(descriptivos, digits = 3, align = 'c', 
-      caption = "Diferencia descriptiva IMTM 2015 y 2022", 
-      col.names = c("Nombre", "IMTM 2015", "IMTM 2022", "Diferencia"))
-```
-\newpage
-```{r}
-  contrastar <- select(cuestionarios, Provincia, Municipio, IMTM_2015, IMTM_2022)
-  contrastar <- mutate(contrastar, Diferencia = (IMTM_2022-IMTM_2015))
-
-  kable(contrastar, digits = 2, align = 'c', 
-      caption = "Diferencia IMTM 2015 y 2022", 
-      col.names = c("Provincia", "Municipio", "IMTM 2015", "IMTM 2022", 
-                    "Diferencia"))
-```
-
-```{r warning=FALSE}
-## Boxplot IMTM 2015 y 2022
-#  Apilar valores IMTM como factor 
-  contrastar <- cbind(contrastar[1:2:5], stack(contrastar[3:4]))
-  contrastar <- rename(contrastar, Valores = values, Índice = ind)
-
-  qplot(data = contrastar, y = Índice, x = Valores, fill = Índice, 
-  geom = "boxplot", main = "Gráfico de caja IMTM 2015 y 2022") +
-  scale_fill_discrete(guide = "none")
 ```
 
 # Objetivo 4: 
@@ -794,7 +919,7 @@ y se realizará estadística descriptiva, también gráficos de cajo y
                              Descriptivos_F3, Descriptivos_F4, Descriptivos_F5)
   
   kable(descriptivos, digits = 2, align = 'c', 
-      caption = "Estadística descriptiva IMTM 2022 por FIGEM Región del Biobío",
+      caption = "Estadística descriptiva IMTM 2022 por FIGEM",
             col.names = c("Descriptivos", "1", "2", "3","4", "5"))
 ```
 
@@ -804,15 +929,18 @@ y se realizará estadística descriptiva, también gráficos de cajo y
   cuestionarios$FIGEM <- factor(cuestionarios$FIGEM)
   qplot(data = cuestionarios, x = FIGEM, y = IMTM_2022, fill = FIGEM, 
       geom = "boxplot", ylab = "Valor", 
-      main = "Gráfico de caja por categoría FIGEM 2022")
+      main = "Gráfico de caja por FIGEM 2022") + 
+    scale_fill_brewer(palette = "Dark2")
 ```
 
 ## Boxplot IMTM 2015 según FIGEM
 
 ```{r warning=FALSE}
-  qplot(data = cuestionarios, x = FIGEM, y = IMTM_2015, fill = FIGEM, 
+  IMTM_2015$FIGEM <- factor(IMTM_2015$FIGEM)
+  qplot(data = IMTM_2015, x = FIGEM, y = IMTM_2015, fill = FIGEM, 
       geom = "boxplot", ylab = "Valor", 
-      main = "Gráfico de caja por categoría FIGEM 2015")
+      main = "Gráfico de caja por FIGEM 2015") + 
+  scale_fill_brewer(palette = "Dark2")
 ```
 
 ## Estadística descriptiva Provincia
@@ -870,9 +998,8 @@ y se realizará estadística descriptiva, también gráficos de cajo y
                              Descriptivos_parauco)
   
   kable(descriptivos, digits = 2, align = 'c', 
-      caption = "Estadística descriptiva IMTM 2022 por provincia
-      Región del Biobío", col.names = c("Descriptivos", "Concepción", 
-                                        "Biobío", "Arauco"))
+      caption = "Estadística descriptiva IMTM 2022 por provincia",
+      col.names = c("Descriptivos", "Concepción", "Biobío", "Arauco"))
 ```
 
 ## Boxplot IMTM 2022 según provincia
@@ -881,14 +1008,38 @@ y se realizará estadística descriptiva, también gráficos de cajo y
   cuestionarios$Provincia <- factor(cuestionarios$Provincia)
   qplot(data = cuestionarios, x = Provincia, y = IMTM_2022, fill = Provincia,
       geom = "boxplot", ylab = "Valor",
-      main = "Gráfico de caja por provincia 2022")
+      main = "Gráfico de caja por provincia 2022") + 
+    scale_fill_brewer(palette = "Dark2")
 ```
 
 ## Boxplot IMTM 2015 según provincia
 
 ```{r warning=FALSE}
-  cuestionarios$Provincia <-factor(cuestionarios$Provincia)
-  qplot(data = cuestionarios, x = Provincia, y = IMTM_2015, fill = Provincia,
+  IMTM_2015$Provincia <- factor(IMTM_2015$Provincia)
+  qplot(data = IMTM_2015, x = Provincia, y = IMTM_2015, fill = Provincia,
       geom = "boxplot", ylab = "Valor",
-      main = "Gráfico de caja por provincia 2015")
+      main = "Gráfico de caja por provincia 2015") + 
+    scale_fill_brewer(palette = "Dark2")
 ```
+# Recursos:
+
+```{r}
+# Procesos
+  metodologia_procesos <- data.frame(lista_proceso, nombre_proceso) 
+
+  row.names(metodologia_procesos) <- NULL 
+
+  kable(metodologia_procesos, caption = "Variables subíndice Procesos", 
+        align = 'c', col.names = c("Num", "Nombre procesos"))  
+```
+
+```{r}
+# Tramites
+  metodologia_tramites <- data.frame(lista_tramite, nombre_tramite)
+  row.names(metodologia_tramites) <- NULL 
+
+  kable(metodologia_tramites, caption = "Variables subíndice Tramites", 
+        align= 'c', col.names = c("Num", "Nombre trámites"))
+
+```
+
