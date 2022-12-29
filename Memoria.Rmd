@@ -1,12 +1,12 @@
 ---
-title: "Anexo 2: Estadística mediante R"
+title: "Construcción y cálculo del IMTM"
 author: "Abel Luis Muñoz Vera"
-date: "`9 de diciembre del 2022`"
+date: "`12 de diciembre del 2022`"
 lang: es
 output:
-  word_document: default
-  html_document: default
   pdf_document: default
+  html_document: default
+  word_document: default
 editor_options: 
   markdown: 
     wrap: 72
@@ -115,7 +115,7 @@ en línea. Los subindices correspondientes a **investigacion_2**,
   mutate(cuestionarios, IMTM_2022= (IT + RRHH + GTM + SML)/4) 
 
 # Valores redondeados 2 decimales 
-  cuestionarios <- cuestionarios %>% mutate_if(is.numeric, round, digits = 2)
+
 ```
 
 \newpage
@@ -250,6 +250,9 @@ la distribución de estos valores.
 ```{r}
 # Quitar valores NA base de datos cuestionarios 
 cuestionarios <- na.omit(cuestionarios)
+medidas_seguridad <- na.omit(medidas_seguridad)
+procesos <- na.omit(procesos)
+tramites <- na.omit(tramites)
 ```
 
 
@@ -460,7 +463,7 @@ cleveland <- select(cuestionarios, Provincia, Municipio, FIGEM, IMTM_2022,
   ggplot(cleveland, aes(x = IMTM_2022, y = Municipio)) +
   geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
   geom_point(size = 2, aes(colour = Provincia)) + 
-  labs(title = "IMTM región del Biobío por provincia",
+  labs(title = "",
        y = "Municipios", x = "Valores" ) + 
   scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
                                                    "Arauco")) +
@@ -479,7 +482,7 @@ cleveland$Municipio <- factor(cleveland$Municipio, levels = nameorder)
 ggplot(cleveland, aes(x = IT, y = Municipio)) +
   geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
   geom_point(size = 2, aes(colour = Provincia)) + 
-  labs(title = "IT región del Biobío por provincia",
+  labs(title = "",
        y = "Municipios", x = "Valores" ) + 
   scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
                                                    "Arauco")) +
@@ -498,7 +501,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   ggplot(cleveland, aes(x = RRHH, y = Municipio)) +
   geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
   geom_point(size = 2, aes(colour = Provincia)) + 
-  labs(title = "RRHH región del Biobío por provincia",
+  labs(title = "",
        y = "Municipios", x = "Valores" ) + 
   scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
                                                    "Arauco")) +
@@ -517,13 +520,37 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   ggplot(cleveland, aes(x = GTM, y = Municipio)) +
   geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
   geom_point(size = 2, aes(colour = Provincia)) + 
-  labs(title = "GTM región del Biobío por provincia",
+  labs(title = "",
        y = "Municipios", x = "Valores" ) + 
   scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
                                                    "Arauco")) +
   theme_bw() + theme(panel.grid.major.y = element_blank(),
         legend.position = c(0.90, 0.15), legend.justification = c(0.90, 0.15))
 ```
+
+##  Gráfico cleveland Procesos
+
+```{r}
+  cleveland_procesos <- select(cuestionarios, Provincia, Municipio, FIGEM, 
+                               procesos)
+  nameorder <- cleveland_procesos$Municipio[order(cleveland_procesos$Provincia,
+                                       cleveland_procesos$procesos)]
+
+  cleveland_procesos$Municipio <- factor(cleveland_procesos$Municipio, levels = nameorder)
+
+  ggplot(cleveland_procesos, aes(x = procesos, y = Municipio)) +
+  geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
+  geom_point(size = 2, aes(colour = Provincia)) + 
+  labs(title = "",
+       y = "Municipios", x = "Valores" ) + 
+  scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
+                                                   "Arauco")) +
+  theme_bw() + theme(panel.grid.major.y = element_blank(),
+        legend.position = c(0.90, 0.30), legend.justification = c(0.90, 0.30))
+
+
+```
+
 
 ## Gráfico cleveland SML 
 
@@ -536,7 +563,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   ggplot(cleveland, aes(x = SML, y = Municipio)) +
   geom_segment(aes(yend = Municipio), xend = 0, colour = "grey50") +
   geom_point(size = 2, aes(colour = Provincia)) + 
-  labs(title = "SML región del Biobío por provincia",
+  labs(title = "",
        y = "Municipios", x = "Valores" ) + 
   scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
                                                    "Arauco")) +
@@ -568,7 +595,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   geom_col(aes(fill = nombre_seg_info), colour = "black", position = "dodge", 
            width = 0.5) +
   scale_x_discrete("") + scale_y_continuous("Cantidad") + 
-  labs(title = "Nivel de seguridad informática") +
+  labs(title = "") +
   scale_fill_discrete(name = "Medidas de seguridad") + 
   geom_text(aes(label = Total_seg_info), vjust = -0.3) + 
   scale_fill_brewer(palette = "Dark2") + 
@@ -596,7 +623,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   ggplot(Total_num_serv, aes(x = fct_reorder(cant_serv, total_serv), y = total_serv)) +
   geom_col(aes(fill = cant_serv), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("Servidores") + scale_y_continuous("Frecuencia") + 
-  labs(title = "Número de servidores disponibles") + 
+  labs(title = "") + 
   geom_text(aes(label = total_serv), vjust = -0.3) + scale_fill_brewer(palette = "Dark2")   + guides(fill = FALSE) 
 ```
 
@@ -619,7 +646,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   ggplot(Total_area_info, aes(x = si_no, y = total_area_info)) +
   geom_col(aes(fill = si_no), colour = "black", position = "dodge", width = 0.5) + 
   scale_x_discrete("Presencia") + scale_y_continuous("Cantidad") + 
-  labs(title = "Presencia de un área de informática") + 
+  labs(title = "") + 
   scale_fill_discrete(guide = "none") + 
   geom_text(aes(label = total_area_info), vjust = -0.3) + 
   scale_fill_brewer(palette = "Dark2") + guides(fill = FALSE) 
@@ -643,7 +670,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   ggplot(Total_educ_info, aes(x = nivel_educ, y = total_educ_info)) +
   geom_col(aes(fill = nivel_educ), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("Nivel") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Nivel educacional encargado informática") + 
+        labs(title = "") + 
         scale_fill_discrete(guide = "none") + 
         geom_text(aes(label = total_educ_info), vjust = -0.3) +
   scale_fill_brewer(palette = "Dark2") + guides(fill = FALSE) 
@@ -667,7 +694,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
                                             y = total_org_info)) +
   geom_col(aes(fill = org_info_c), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Dependencia de la unidad de informática") + 
+        labs(title = "") + 
         scale_fill_discrete(guide = "none") + 
         geom_text(aes(label = total_org_info), vjust = -0.3) + 
   scale_fill_brewer(palette = "Dark2") + 
@@ -692,7 +719,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   ggplot(Total_intranet, aes(x = si_no, y = total_intranet)) +
   geom_col(aes(fill = si_no), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("Presencia") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Presencia de intranet Municipal") + 
+        labs(title = "") + 
         scale_fill_discrete(guide = "none") + 
         geom_text(aes(label = total_intranet), vjust = -0.3) +
         scale_fill_brewer(palette = "Dark2") + guides(fill = FALSE)  
@@ -714,7 +741,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   ggplot(Total_estrategia_s, aes(x = si_no, y = total_estrategia_s)) +
   geom_col(aes(fill = si_no), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("Presencia") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Presencia de estrategia servicios municipales") + 
+        labs(title = "") + 
         scale_fill_discrete(guide = "none") + 
         geom_text(aes(label = total_estrategia_s), vjust = -0.3) +
   scale_fill_brewer(palette = "Dark2") + guides(fill = FALSE)
@@ -736,7 +763,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   ggplot(Total_estrategia_g, aes(x = si_no, y = total_estrategia_g)) +
   geom_col(aes(fill = si_no), colour = "black", position = "dodge", 
   width = 0.5) + scale_x_discrete("Presencia") + scale_y_continuous("Frecuencia") + 
-        labs(title = "Presencia de estrategia de gestión municipal") + 
+        labs(title = "") + 
         scale_fill_discrete(guide = "none") + 
         geom_text(aes(label = total_estrategia_g), vjust = -0.3) +  scale_fill_brewer(palette = "Dark2") + guides(fill = FALSE)
 ```
@@ -771,12 +798,33 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
 # cleveland procesos
   ggplot(Total_procesos, aes(x = Total_proceso, 
                            y = reorder(nombre_proceso, Total_proceso))) +
-  geom_point(size = 2) + labs(title = "Cantidad de procesos informatizados", 
+  geom_point(size = 2) + labs(title = "", 
                 y = "Nombre procesos", x = "Total procesos municipales" ) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
         panel.grid.major.y = element_line(colour = "gold", linetype = "dashed"))
 ```
+
+## Correlación estrategias y subíndices
+
+```{r}
+cor_es_tramites <- cor(cuestionarios$estrategia_servicios, cuestionarios$tramites,
+                use = "everything", method=c("pearson", "kendall", "spearman"))
+cor_eg_procesos <- cor(cuestionarios$estrategia_gestion, cuestionarios$procesos,
+                use = "everything", method=c("pearson", "kendall", "spearman"))
+
+nombres_estrategias <- c("Estrategia servicios", "Estrategia gestión")
+nombres_subindice <- c("Subíndice tramites", "Subíndice procesos")
+valores_correlacion <- c(cor_es_tramites, cor_eg_procesos)
+
+cor_estrategias <- data.frame(nombres_estrategias, nombres_subindice, valores_correlacion)
+
+kable(cor_estrategias, digits = 3, align = 'c', caption = 
+        "Correlación entre estrategias y subíndices", 
+      col.names = c("Estrategias", "Subíndices", "Correlación"))
+
+```
+
 ## Resultados SML
 
 ```{r}
@@ -806,7 +854,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
 ```{r}
 ggplot(Total_tramites, aes(x = Total_tramite, 
                            y = reorder(nombre_tramite, Total_tramite))) +
-  geom_point(size = 1) + labs(title = "Cantidad de trámites informatizados",  
+  geom_point(size = 1) + labs(title = "",  
                 y = "Nombre trámite", x = "Total de trámites municipales" ) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
@@ -1040,6 +1088,27 @@ y se realizará estadística descriptiva, también gráficos de cajo y
 
   kable(metodologia_tramites, caption = "Variables subíndice Tramites", 
         align= 'c', col.names = c("Num", "Nombre trámites"))
+
+```
+
+## Exportar dataframes como planillas de datos 
+```{r warning=FALSE}
+install.packages("openxlsx")
+library("openxlsx")
+library("xlsx")
+
+dataset_names <- list("Sheet1" = cuestionarios, "Sheet2"= medidas_seguridad,
+                      "Sheet3" = procesos, "Sheet4" = tramites)
+openxlsx::write.xlsx(dataset_names, file = 'IMTM.xlsx') 
+```
+
+## Exportar dataframes para PowerBI
+```{r}
+write.xlsx(cuestionarios, file = "IMTM_2022.xlsx")
+write.xlsx(medidas_seguridad, file = "Medidas_seguridad.xlsx")
+write.xlsx(procesos, file = "Procesos.xlsx")
+write.xlsx(tramites, file = "Tramites.xlsx")
+write.xlsx(IMTM_2022, file = "IMTM_2022_corregido.xlsx")
 
 ```
 
