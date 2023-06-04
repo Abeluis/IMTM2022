@@ -1,7 +1,7 @@
 ---
 title: "Construcción y cálculo del IMTM"
 author: "Abel Luis Muñoz Vera"
-date: "`12 de diciembre de 2022`"
+date: "`12 de diciembre del 2022`"
 lang: es
 output:
   pdf_document: default
@@ -31,11 +31,6 @@ El repositorio con las encuestas aplicadas, libro de claves, base de
 datos en formato excel (xlsx), así como otros documentos se encuentran
 disponibles en <https://github.com/Abeluis/IMTM2022>.
 
-Durante marzo de 2023 recibí las respuestas faltantes de San Rosendo, Tirúa y 
-Alto Biobío, los cuales fueron incluidos en esta última versión del documento. 
-Se aplicaron cambios para que algunos bloques de código sean calculados con 33
-que son los municipios actuales y no los 30 de la versión de Diciembre de 2022. 
-
 # Acerca de R Markdown
 
 Este es un documento en R Markdown. Markdown es un sencillo formato de
@@ -43,7 +38,7 @@ sintaxis para la creación de documentos HTML, PDF y MS Word. Para más
 detalles sobre el uso de R Markdown consulta
 <http://rmarkdown.rstudio.com>.
 
-En este R script fueron utilizadas los siguientes paquetes:
+En este R script Fueron utilizadas los siguientes paquetes:
 
 ```{r message=FALSE, warning=FALSE}
 library("readxl")
@@ -145,7 +140,7 @@ municipios de la región de Concepción al año 2022
 # Resultados como ranking 
 IMTM_2022_rank <- IMTM_2022 %>% arrange(desc(IMTM_2022)) %>% 
   na.omit(IMTM_2022_rank) # Quitar valores N.A
-Ranking <- c(1:33)
+Ranking <- c(1:32)
 IMTM_2022_rank <- cbind(Ranking, IMTM_2022_rank)
 
 ```
@@ -207,7 +202,7 @@ y gráficos de caja.
 ```
 
 ```{r}
-  descriptivos <- data.frame(nombres, Descriptivos_IMTM_2015,              Descriptivos_IMTM)
+descriptivos <- data.frame(nombres, Descriptivos_IMTM_2015, Descriptivos_IMTM)
   
   descriptivos <- select(descriptivos, nombres, Descriptivos_IMTM_2015, 
                         Descriptivos_IMTM)
@@ -511,7 +506,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   scale_colour_brewer(palette = "Set1", limits = c("Concepción", "Biobío",
                                                    "Arauco")) +
   theme_bw() + theme(panel.grid.major.y = element_blank(),
-        legend.position = c(0.99, 0.35), legend.justification = c(0.99, 0.35))
+        legend.position = c(0.98, 0.28), legend.justification = c(0.98, 0.28))
 ```
 
 ## Gráfico cleveland GTM
@@ -552,6 +547,8 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
                                                    "Arauco")) +
   theme_bw() + theme(panel.grid.major.y = element_blank(),
         legend.position = c(0.90, 0.30), legend.justification = c(0.90, 0.30))
+
+
 ```
 
 
@@ -585,7 +582,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
   lista_seg_info <- c(1:4)
   lista_seg_info <- factor(lista_seg_info)
   Total_seg_info <- data.frame(lista_seg_info, nombre_seg_info, Total_seg_info)
-  Total_seg_info <- mutate(Total_seg_info, no_seg_info = (33-Total_seg_info))
+  Total_seg_info <- mutate(Total_seg_info, no_seg_info = (30-Total_seg_info))
   row.names(Total_seg_info) <- NULL 
 
   kable(Total_seg_info, caption = "Total de medidas de seguridad", align= 'c', 
@@ -607,7 +604,7 @@ ggplot(cleveland, aes(x = IT, y = Municipio)) +
  
 ```{r}
 # num_serv datos 
-  cant_serv <- c("Ninguno", "Uno", "Dos", "Tres", "Cuatro", "Seis", "Diez")
+  cant_serv <- c("Ninguno", "Uno", "Dos", "Tres", "Cuatro", "Seis", "Diez", "NA")
   total_serv <- medidas_seguridad %>% count(cant_serv) 
   total_serv <- total_serv$n # Elim
   Total_num_serv <- data.frame(cant_serv, total_serv) 
@@ -1096,23 +1093,22 @@ y se realizará estadística descriptiva, también gráficos de cajo y
 
 ## Exportar dataframes como planillas de datos 
 ```{r warning=FALSE}
-#install.packages("openxlsx")
-#library("openxlsx")
-#library("xlsx")
+install.packages("openxlsx")
+library("openxlsx")
+library("xlsx")
 
-#dataset_names <- list("Sheet1" = cuestionarios, "Sheet2"= medidas_seguridad,
-     #                 "Sheet3" = procesos, "Sheet4" = tramites)
-#openxlsx::write.xlsx(dataset_names, file = 'IMTM.xlsx') 
+dataset_names <- list("Sheet1" = cuestionarios, "Sheet2"= medidas_seguridad,
+                      "Sheet3" = procesos, "Sheet4" = tramites)
+openxlsx::write.xlsx(dataset_names, file = 'IMTM.xlsx') 
 ```
 
 ## Exportar dataframes para PowerBI
 ```{r}
-#write.xlsx(cuestionarios, file = "IMTM_2022.xlsx")
-#write.xlsx(medidas_seguridad, file = "Medidas_seguridad.xlsx")
-#write.xlsx(procesos, file = "Procesos.xlsx")
-#write.xlsx(tramites, file = "Tramites.xlsx")
-#write.xlsx(IMTM_2022, file = "IMTM_2022_corregido.xlsx")
-
+write.xlsx(cuestionarios, file = "IMTM_2022.xlsx")
+write.xlsx(medidas_seguridad, file = "Medidas_seguridad.xlsx")
+write.xlsx(procesos, file = "Procesos.xlsx")
+write.xlsx(tramites, file = "Tramites.xlsx")
+write.xlsx(IMTM_2022, file = "IMTM_2022_corregido.xlsx")
 
 ```
 
