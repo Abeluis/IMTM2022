@@ -1,0 +1,14 @@
+name: ShinyApp
+title:
+username:
+account: abeluis
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9398712
+bundleId: 7412834
+url: https://abeluis.shinyapps.io/ShinyApp/
+when: 1688351951.95152
+lastSyncTime: 1688351951.95155
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Cuestionario.rds|IMTM_2022.rds|medidas_seguridad.rds|procesos.rds|tramites.rds
